@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload de Imagens</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    textarea,
+    button {
+      margin-bottom: 16px;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    input[type="file"] {
+      border: none;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .alert-success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+
+    .alert-error {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+
+    .preview-container {
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .preview-container img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Media queries para responsividade */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+
+      input[type="text"],
+      textarea,
+      button {
+        font-size: 14px;
+      }
+
+      button {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Upload de Imagens</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <label for="photo">Escolha uma foto:</label>
+      <input type="file" id="photo" name="photo" accept="image/*" required>
+      
+      <label for="photoName">Nome da Foto:</label>
+      <input type="text" id="photoName" name="photoName" required>
+      
+      <label for="comment">Comente sobre esta foto:</label>
+      <textarea id="comment" name="comment" rows="4"></textarea>
+      
+      <div class="preview-container" id="previewContainer" style="display: none;">
+        <h3>Pré-visualização:</h3>
+        <img id="previewImage" src="" alt="Pré-visualização da foto">
+      </div>
+      
+      <button type="submit">Enviar</button>
+    </form>
+    <div id="alert" class="alert" style="display: none;"></div>
+  </div>
+
+  <script>
+    document.getElementById('photo').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      const previewContainer = document.getElementById('previewContainer');
+      const previewImage = document.getElementById('previewImage');
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewContainer.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      } else {
+        previewContainer.style.display = 'none';
+      }
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+      const alertDiv = document.getElementById('alert');
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const message = await response.text();
+        alertDiv.className = 'alert alert-success';
+        alertDiv.textContent = message;
+        alertDiv.style.display = 'block';
+      } catch (error) {
+        console.error('Erro ao fazer upload:', error);
+        alertDiv.className = 'alert alert-error';
+        alertDiv.textContent = 'Erro ao fazer upload.';
+        alertDiv.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
