@@ -1,15 +1,15 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { TableClient } = require('@azure/data-tables');
 const path = require('path');
-const { blobConnectionStringConst, tableSasUrlConst } = require('./constantes/constantes');
 const app = express();
 const port = 3000;
 
 // Configurações do Azure
-const blobConnectionString = {blobConnectionStringConst};
-const tableSasUrl = {tableSasUrlConst};
+const blobConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const tableSasUrl = process.env.AZURE_TABLE_SAS_URL;
 const containerName = 'grupo01'; // Nome do container no Blob Storage
 const tableName = 'tb01'; // Nome da tabela existente no Table Storage
 
@@ -55,19 +55,33 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
 });
 
 // Rota para listar fotos
+// Rota para listar fotos com URLs das imagens
 app.get('/photos', async (req, res) => {
   try {
     const tableClient = new TableClient(tableSasUrl, tableName);
     const entities = [];
+
+    // Recupera todas as entidades do Table Storage
     for await (const entity of tableClient.listEntities()) {
-      entities.push(entity);
+      // Para cada entidade, cria o URL do Blob
+      const blobName = entity.rowKey;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      const blobUrl = blockBlobClient.url;
+
+      // Adiciona o URL do Blob e os metadados à resposta
+      entities.push({
+        ...entity,
+        url: blobUrl
+      });
     }
+
     res.json(entities);
   } catch (error) {
     console.error('Erro ao listar fotos:', error.message || error);
     res.status(500).send(`Erro ao listar fotos: ${error.message || error}`);
   }
 });
+
 
 // Rota para criar uma nova tabela (se necessário)
 app.post('/create-table/:tableName', async (req, res) => {
