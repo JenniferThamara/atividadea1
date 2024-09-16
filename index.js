@@ -1,15 +1,15 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { TableClient } = require('@azure/data-tables');
 const path = require('path');
-const { blobConnectionStringConst, tableSasUrlConst } = require('./constantes/constantes');
 const app = express();
 const port = 3000;
 
 // Configurações do Azure
-const blobConnectionString = {blobConnectionStringConst};
-const tableSasUrl = {tableSasUrlConst};
+const blobConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const tableSasUrl = process.env.AZURE_TABLE_SAS_URL;
 const containerName = 'grupo01'; // Nome do container no Blob Storage
 const tableName = 'tb01'; // Nome da tabela existente no Table Storage
 
