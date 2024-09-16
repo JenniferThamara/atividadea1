@@ -26,6 +26,14 @@
       <label for="comment">Comente sobre esta foto:</label>
       <textarea id="comment" name="comment" rows="4"></textarea>
 
+      <!-- Novo campo para a localização -->
+      <label for="location">Localização (Coordenadas ou Nome do Local):</label>
+      <input type="text" id="location" name="location">
+
+      <!-- Novo campo para tags -->
+      <label for="tags">Tags (separadas por vírgula):</label>
+      <input type="text" id="tags" name="tags">
+
       <div class="preview-container" id="previewContainer" style="display: none;">
         <h3>Pré-visualização:</h3>
         <img id="previewImage" src="" alt="Pré-visualização da foto">
@@ -33,6 +41,7 @@
 
       <button type="submit">Enviar</button>
     </form>
+
     <div id="alert" class="alert" style="display: none;"></div>
   </div>
 

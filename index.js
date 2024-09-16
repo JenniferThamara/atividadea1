@@ -37,13 +37,19 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
     // Upload da foto para o Blob Storage
     await blockBlobClient.upload(req.file.buffer, req.file.size);
 
+    // Metadados adicionais
+    const location = req.body.location || 'Desconhecido';
+    const tags = req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [];
+
     // Adiciona metadados no Table Storage
     const tableClient = new TableClient(tableSasUrl, tableName);
     const entity = {
       partitionKey: 'photos',
       rowKey: blobName,
       photoName: req.body.photoName || 'sem_nome',
-      uploadDate: new Date().toISOString()
+      uploadDate: new Date().toISOString(),
+      location,  // Salva a localização
+      tags: JSON.stringify(tags)  // Converte as tags para string
     };
     await tableClient.createEntity(entity);
 
@@ -63,15 +69,15 @@ app.get('/photos', async (req, res) => {
 
     // Recupera todas as entidades do Table Storage
     for await (const entity of tableClient.listEntities()) {
-      // Para cada entidade, cria o URL do Blob
       const blobName = entity.rowKey;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       const blobUrl = blockBlobClient.url;
 
-      // Adiciona o URL do Blob e os metadados à resposta
       entities.push({
         ...entity,
-        url: blobUrl
+        url: blobUrl,
+        location: entity.location || 'Desconhecido',
+        tags: entity.tags || '[]'  // Garante que tags seja um array
       });
     }
 
@@ -81,7 +87,6 @@ app.get('/photos', async (req, res) => {
     res.status(500).send(`Erro ao listar fotos: ${error.message || error}`);
   }
 });
-
 
 // Rota para criar uma nova tabela (se necessário)
 app.post('/create-table/:tableName', async (req, res) => {
