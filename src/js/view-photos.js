@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const photoGallery = document.getElementById('photoGallery');
-  
+    const photoGallery = document.getElementById('photosList');
+
     try {
       const response = await fetch('/photos');
       const photos = await response.json();
