@@ -55,19 +55,33 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
 });
 
 // Rota para listar fotos
+// Rota para listar fotos com URLs das imagens
 app.get('/photos', async (req, res) => {
   try {
     const tableClient = new TableClient(tableSasUrl, tableName);
     const entities = [];
+
+    // Recupera todas as entidades do Table Storage
     for await (const entity of tableClient.listEntities()) {
-      entities.push(entity);
+      // Para cada entidade, cria o URL do Blob
+      const blobName = entity.rowKey;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      const blobUrl = blockBlobClient.url;
+
+      // Adiciona o URL do Blob e os metadados à resposta
+      entities.push({
+        ...entity,
+        url: blobUrl
+      });
     }
+
     res.json(entities);
   } catch (error) {
     console.error('Erro ao listar fotos:', error.message || error);
     res.status(500).send(`Erro ao listar fotos: ${error.message || error}`);
   }
 });
+
 
 // Rota para criar uma nova tabela (se necessário)
 app.post('/create-table/:tableName', async (req, res) => {
