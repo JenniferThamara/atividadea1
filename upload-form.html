@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Upload de Imagens</title>
   <link rel="stylesheet" href="./src/css/styles.css">
 </head>
+
 <body>
   <div class="container">
     <h1>Upload de Imagens</h1>
 
-    <!-- Adicionando o link para a página de visualização de fotos -->
-    <a href="view-photos.html">Ver Fotos Enviadas</a>
+    <div class="link-container">
+      <a href="view-photos.html">Ver Fotos Enviadas</a>
+    </div>
 
     <form id="uploadForm" enctype="multipart/form-data">
       <label for="photo">Escolha uma foto:</label>
       <input type="file" id="photo" name="photo" accept="image/*" required>
-      
+
       <label for="photoName">Nome da Foto:</label>
       <input type="text" id="photoName" name="photoName" required>
-      
+
       <label for="comment">Comente sobre esta foto:</label>
       <textarea id="comment" name="comment" rows="4"></textarea>
-      
+
       <div class="preview-container" id="previewContainer" style="display: none;">
         <h3>Pré-visualização:</h3>
         <img id="previewImage" src="" alt="Pré-visualização da foto">
       </div>
-      
+
       <button type="submit">Enviar</button>
     </form>
     <div id="alert" class="alert" style="display: none;"></div>
@@ -35,4 +38,5 @@
 
   <script src="./src/js/script.js"></script>
 </body>
+
 </html>
